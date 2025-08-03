@@ -1,19 +1,21 @@
-import re
+# import re
 
-re_pattern = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+# re_pattern = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 
 class Version:
     semantic_hierarchy = {
         "alpha": 1,
+        "a": 1,
         "beta": 2,
+        "b": 2,
         "rc": 3
     }
 
     def __init__(self, version):
-        match = re.match(re_pattern, version)
+        # match = re.match(re_pattern, version)
 
-        if not match:
-            raise ValueError(f'invalid syntax: {version}')
+        # if not match:
+        #     raise ValueError(f'invalid syntax: {version}')
 
         self.version = version
         self.parts = self.parse(version)
@@ -21,6 +23,16 @@ class Version:
 
     def parse(self, version):
         parts = []
+
+        # replace a & b
+        if version[-2].isdigit() and not version[-1].isdigit():
+            match version[-1]:
+                case 'a':
+                    version = version[:-1] + '-alpha'
+                case 'b':
+                    version = version[:-1] + '-beta'
+                case default:
+                    raise ValueError(f'invalid syntax: {version}')
 
         # split if prerelease
         if '-' in version:
